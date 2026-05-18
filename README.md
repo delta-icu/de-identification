@@ -10,7 +10,14 @@ It supports:
 
 ## Before First Use
 
-Open Terminal inside the project folder and run:
+Open Terminal and clone the repository:
+
+```bash
+git clone <REPOSITORY_URL>
+cd <REPOSITORY_FOLDER>
+```
+
+Then run:
 
 ```bash
 python3.12 -m venv .venv
@@ -29,7 +36,7 @@ models/xlmr_phi_final
 Each time you want to use the tool, run:
 
 ```bash
-cd "/Users/vanessalislevand/Documents/New project"
+cd <REPOSITORY_FOLDER>
 source .venv/bin/activate
 greek-med-anonymizer-ui
 ```
