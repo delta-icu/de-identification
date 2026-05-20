@@ -1,10 +1,10 @@
 # Greek Medical Report Anonymization
 
-This tool anonymizes Greek medical reports through a simple web app.
+This tool anonymizes Greek medical reports through a simple Google Colab notebook.
 
 ## Open In Colab
 
-Open the launcher notebook here:
+Open the notebook here:
 
 [Open in Colab](https://colab.research.google.com/github/VanessaLislevand/greek-medical-anonymization/blob/main/Launch_App.ipynb)
 
@@ -12,24 +12,25 @@ Open the launcher notebook here:
 
 1. Open the notebook in Colab.
 2. Run the cells from top to bottom.
-3. Wait for the app to start.
-4. Open the public link shown in the last cell.
+3. Upload one report, multiple reports, or a `.zip` file containing a folder of reports.
+4. Download the generated `.zip` file.
 
 The notebook will:
 
 - download the repository
 - install the required packages
 - mount Google Drive
-- connect the app to the model files stored in Google Drive
-- launch the anonymization app
+- connect the pipeline to the model files stored in Google Drive
+- anonymize the uploaded reports
+- download the output `.zip`
 
-## How To Use
+## Notebook Settings
 
-1. Select the report type.
-2. Upload one report, multiple reports, or a `.zip` file containing a folder of reports.
-3. If needed, change the mask token under `Advanced options`.
-4. Click `Run anonymization`.
-5. Download the generated `.zip` file.
+Inside the notebook you can change:
+
+- `PROCESSING_MODE`
+- `MASK_TOKEN`
+- `DEFAULT_MODEL_DIR`
 
 ## Report Types
 
