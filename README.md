@@ -13,7 +13,8 @@ Open the notebook here:
 1. Open the notebook in Colab.
 2. Run the cells from top to bottom.
 3. Upload one report, multiple reports, or a `.zip` file containing a folder of reports.
-4. Download the generated `.zip` file.
+4. Review the preview shown inside Colab.
+5. Download the generated `.zip` file.
 
 The notebook will:
 
@@ -22,6 +23,7 @@ The notebook will:
 - mount Google Drive
 - connect the pipeline to the model files stored in Google Drive
 - anonymize the uploaded reports
+- show a preview of the anonymized output inside the notebook
 - download the output `.zip`
 
 ## Notebook Settings
