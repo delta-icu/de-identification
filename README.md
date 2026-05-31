@@ -6,7 +6,7 @@ This tool anonymizes Greek medical reports through a simple Google Colab noteboo
 
 Open the notebook here:
 
-[Open in Colab](https://colab.research.google.com/github/VanessaLislevand/greek-medical-anonymization/blob/main/Launch_App.ipynb)
+[Open in Colab](https://colab.research.google.com/github/VanessaLislevand/greek-medical-anonymization/blob/main/Run_Anonymization_Colab.ipynb)
 
 ## How To Start
 
@@ -30,14 +30,13 @@ The notebook will:
 
 Inside the notebook you can change:
 
-- `PROCESSING_MODE`
+- `REPORT_TYPE`
 - `MASK_TOKEN`
 
 ## Report Types
 
 - `Report with template and free text`: for reports that contain both structured fields and free text
 - `Free-text-only report`: for narrative reports without a fixed template
-- `Template-only report`: for reports that are mostly structured template fields
 
 ## Output
 

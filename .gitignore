@@ -38,6 +38,7 @@ checkpoints/
 !models/
 !models/README.md
 !models/xlmr_phi_final/
+models/xlmr_phi_final/*
 !models/xlmr_phi_final/.gitkeep
 
 # Data, reports, outputs
