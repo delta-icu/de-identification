@@ -73,6 +73,7 @@ LABEL_HINTS = [
 
 TITLE_VALUE_PATTERNS = [
     re.compile(r"^(?:Καθηγητής|Καθηγήτρια)\s*:\s*\S", re.IGNORECASE),
+    re.compile(r"^(?:Αν\.?\s*Καθηγητής|Αν\.?\s*Καθηγήτρια)\s*:\s*\S", re.IGNORECASE),
     re.compile(r"^(?:Ιατρός|Η\s+Ιατρός|Ο\s+Ιατρός)\s*:\s*\S", re.IGNORECASE),
     re.compile(r"^(?:Επιμελητής|Επιμελήτρια)\s*:\s*\S", re.IGNORECASE),
 ]
