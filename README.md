@@ -14,7 +14,7 @@ Open the notebook here:
 2. Run the cells from top to bottom.
 3. Upload one report, multiple reports, or a `.zip` file containing a folder of reports.
 4. Review the full anonymized report shown inside Colab.
-5. Download the generated `.zip` file.
+5. Click the download button to save the generated `.zip` file.
 
 The notebook will:
 
@@ -24,7 +24,7 @@ The notebook will:
 - connect the pipeline to the downloaded model files
 - anonymize the uploaded reports
 - show the full anonymized output inside the notebook
-- download the output `.zip`
+- provide a download button for the output `.zip`
 
 ## Notebook Settings
 
