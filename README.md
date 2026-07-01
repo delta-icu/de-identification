@@ -6,7 +6,7 @@ This tool anonymizes Greek medical reports through a simple Google Colab noteboo
 
 Open the notebook here:
 
-[Open in Colab](https://colab.research.google.com/github/VanessaLislevand/greek-medical-anonymization/blob/main/Run_Anonymization_Colab.ipynb)
+[Open in Colab](https://colab.research.google.com/github/delta-icu/de-identification/blob/main/Run_Anonymization_Colab.ipynb)
 
 ## How To Start
 
