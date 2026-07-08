@@ -56,16 +56,15 @@ Double-click `Launch_Web_App_Windows.bat` again.
 ### First Time Only
 
 1. Download this repository from GitHub as a `.zip` file and extract it.
-2. Open Terminal inside the project folder.
-3. Run:
+2. Open the extracted folder.
+3. Double-click `Launch_Web_App_Mac.command`.
+4. Wait while the app prepares the environment. The first run may take several minutes.
 
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install --upgrade pip
-python -m pip install -e ".[ml,ui]"
-greek-med-anonymizer-ui
-```
+The launcher will:
+
+- create `.venv` if needed
+- install the required packages the first time
+- open the web app
 
 The app should open at:
 
@@ -73,12 +72,7 @@ The app should open at:
 
 ### Next Times
 
-Open Terminal inside the same project folder and run:
-
-```bash
-source .venv/bin/activate
-greek-med-anonymizer-ui
-```
+Double-click `Launch_Web_App_Mac.command` again.
 
 ## How To Use The Web App
 
