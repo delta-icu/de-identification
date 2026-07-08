@@ -35,7 +35,7 @@ Typical times:
 
 1. Download this repository from GitHub as a `.zip` file and extract it.
 2. Open the extracted folder.
-3. Double-click [Launch_Web_App_Windows.bat](/Users/vanessalislevand/Documents/New project/Launch_Web_App_Windows.bat).
+3. Double-click `Launch_Web_App_Windows.bat`.
 4. Wait while the app prepares the environment. The first run may take several minutes.
 
 The launcher will:
@@ -47,29 +47,9 @@ The launcher will:
 The app should open at:
 
 `http://localhost:8501`
-
-### Manual Windows Setup
-
-If you prefer to run the commands manually, open PowerShell inside the project folder and run:
-
-```powershell
-py --version
-py -m venv .venv
-.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
-python -m pip install -e ".[ml,ui]"
-python -m streamlit run src\greek_med_anonymizer\web_app.py
-```
 ### Next Times
 
-The easiest way is to double-click [Launch_Web_App_Windows.bat](/Users/vanessalislevand/Documents/New project/Launch_Web_App_Windows.bat) again.
-
-If you prefer PowerShell, open PowerShell inside the same project folder and run:
-
-```powershell
-.venv\Scripts\Activate.ps1
-python -m streamlit run src\greek_med_anonymizer\web_app.py
-```
+Double-click `Launch_Web_App_Windows.bat` again.
 
 ## Mac Setup
 
