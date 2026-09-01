@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from greek_med_anonymizer.doc_io import decode_text_bytes, extract_doc_text
 from greek_med_anonymizer.docx_io import extract_docx_text
 
 
@@ -21,6 +22,10 @@ def build_output_path(input_file: Path, input_root: Path, output_root: Path, suf
 
 def read_input_text(path: str | Path) -> str:
     input_path = Path(path)
-    if input_path.suffix.lower() == ".docx":
+    suffix = input_path.suffix.lower()
+    if suffix == ".docx":
         return extract_docx_text(input_path)
-    return input_path.read_text(encoding="utf-8")
+    if suffix == ".doc":
+        return extract_doc_text(input_path)
+    # Plain text may be UTF-8 or a legacy Greek codepage such as cp1253.
+    return decode_text_bytes(input_path.read_bytes())

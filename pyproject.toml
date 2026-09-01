@@ -12,7 +12,9 @@ dependencies = []
 
 [project.optional-dependencies]
 ml = [
-  "transformers>=4.40.0",
+  # transformers 5.x requires torch >= 2.5 and changes the tokenizer config
+  # format. Pinned below 5 to match the bundled model.
+  "transformers>=4.40.0,<5",
   "torch>=2.2.0",
 ]
 ui = [

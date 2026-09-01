@@ -11,7 +11,7 @@ The main way to use this repository is the local web app.
 
 The web app:
 
-- accepts `.docx`, `.txt`, or `.zip` files
+- accepts `.docx`, `.doc`, `.txt`, or `.zip` files
 - supports one or multiple reports
 - shows the full anonymized output on screen
 - lets you download a `.zip` file with the results
@@ -21,6 +21,15 @@ You need:
 
 - Python 3.10 or newer
 - internet access the first time the app runs
+
+### About `.doc` files
+
+Older `.doc` files are converted automatically before anonymization.
+
+One thing to know: on a Mac without LibreOffice, the conversion can leave out
+headers and footers. If your reports keep the hospital name or the doctor's name
+up there, either install [LibreOffice](https://www.libreoffice.org/download/) or
+save the file as `.docx` in Word first, so nothing is missed.
 
 Typical times:
 
@@ -40,14 +49,14 @@ Typical times:
 
 The launcher will:
 
-- use an active conda environment if one is already open
-- create `.venv` if needed
+- find or set up a suitable Python
 - install the required packages the first time
 - open the web app
 
 The app should open at:
 
 `http://localhost:8501`
+
 ### Next Times
 
 Double-click `Launch_Web_App_Windows.bat` again.
@@ -63,8 +72,7 @@ Double-click `Launch_Web_App_Windows.bat` again.
 
 The launcher will:
 
-- use an active conda environment if one is already open
-- create `.venv` if needed
+- find or set up a suitable Python
 - install the required packages the first time
 - open the web app
 
@@ -80,7 +88,7 @@ Double-click `Launch_Web_App_Mac.command` again.
 
 1. Choose the report type.
 2. Keep the default mask token or change it.
-3. Upload one or more `.docx` or `.txt` files.
+3. Upload one or more `.docx`, `.doc`, or `.txt` files.
 4. If you want to upload a whole folder, first compress it as a real `.zip` file and upload the `.zip`.
 5. Click `Run anonymization`.
 6. Review the anonymized output shown on screen.
