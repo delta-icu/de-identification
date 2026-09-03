@@ -13,7 +13,7 @@ import zipfile
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_MODEL_DIR = PROJECT_ROOT / "models" / "xlmr_phi_final"
 MODEL_SHARE_LINK = "https://drive.google.com/file/d/1RIHFqp5Xke7t5JtMuXJBhoR_gqEVUoO_/view?usp=share_link"
-SUPPORTED_EXTENSIONS = {".docx", ".txt"}
+SUPPORTED_EXTENSIONS = {".docx", ".doc", ".txt"}
 
 
 def _build_gdrive_download_url(share_link: str) -> str:
@@ -172,6 +172,10 @@ def render_app() -> None:
     st.set_page_config(page_title="Greek Medical Report Anonymizer", layout="wide")
     st.title("Greek Medical Report Anonymizer")
     st.write("Upload one or more reports, or upload a `.zip` file containing a folder of reports.")
+    st.caption(
+        "Accepted formats: `.docx`, `.doc`, `.txt`, or a `.zip` of those. "
+        "Older `.doc` files are converted automatically, which takes a few extra seconds each."
+    )
 
     @st.cache_resource(show_spinner=False)
     def get_cached_pipeline(processing_mode: str, mask_token: str):
@@ -188,8 +192,8 @@ def render_app() -> None:
         mask_token = st.text_input("Mask token", value="[REDACTED]")
 
     uploaded_files = st.file_uploader(
-        "Upload `.docx`, `.txt`, or `.zip` files",
-        type=["docx", "txt", "zip"],
+        "Upload `.docx`, `.doc`, `.txt`, or `.zip` files",
+        type=["docx", "doc", "txt", "zip"],
         accept_multiple_files=True,
     )
 
@@ -212,7 +216,7 @@ def render_app() -> None:
                 temp_dir = Path(temp_dir_name)
                 input_paths = _collect_uploaded_paths(uploaded_files, temp_dir)
                 if not input_paths:
-                    st.error("No supported `.docx` or `.txt` files were found in the uploaded input.")
+                    st.error("No supported `.docx`, `.doc`, or `.txt` files were found in the uploaded input.")
                     return
 
                 results: list[dict[str, object]] = []
