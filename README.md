@@ -68,7 +68,8 @@ Double-click `Launch_Web_App_Windows.bat` again.
 1. Download this repository from GitHub as a `.zip` file and extract it.
 2. Open the extracted folder.
 3. Double-click `Launch_Web_App_Mac.command`.
-4. Wait while the app prepares the environment. The first run may take several minutes.
+4. macOS will block it the first time. See below.
+5. Wait while the app prepares the environment. The first run may take several minutes.
 
 The launcher will:
 
@@ -79,6 +80,30 @@ The launcher will:
 The app should open at:
 
 `http://localhost:8501`
+
+### If macOS Blocks The Launcher
+
+The first time, macOS says it "could not verify" the file. This is expected: it
+is a script downloaded from the internet, and it has not been signed with an
+Apple developer certificate. To allow it:
+
+1. Double-click `Launch_Web_App_Mac.command` and dismiss the warning.
+2. Open System Settings, then Privacy & Security.
+3. Scroll down to Security. Next to "Launch_Web_App_Mac.command was blocked",
+   click Open Anyway.
+4. Confirm, and enter your password or use Touch ID.
+
+You only need to do this once.
+
+Two ways to avoid it altogether:
+
+- Get the project with `git clone` instead of downloading the `.zip`. Files from
+  a clone are not marked as downloaded, so macOS does not block them.
+- Or run this once in Terminal, from inside the project folder:
+
+  ```bash
+  xattr -d com.apple.quarantine Launch_Web_App_Mac.command
+  ```
 
 ### Next Times
 
