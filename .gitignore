@@ -54,3 +54,6 @@ anonymized/
 # OS/editor
 .vscode/
 .idea/
+
+# Model download cache (created at runtime, never commit)
+models/_download_cache/

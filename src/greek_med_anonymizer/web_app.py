@@ -110,6 +110,17 @@ def _build_pipeline(processing_mode: str, mask_token: str) -> AnonymizationPipel
     return AnonymizationPipeline(config)
 
 
+def _is_macos_metadata(path: Path) -> bool:
+    """True for the bookkeeping entries macOS adds when you use Compress.
+
+    A zip made in Finder carries a __MACOSX folder holding an AppleDouble
+    companion for every file: __MACOSX/reports/._report.docx. Those end in
+    .docx but are not documents, so opening one raises
+    "File is not a zip file" and takes the whole run down with it.
+    """
+    return "__MACOSX" in path.parts or path.name.startswith("._")
+
+
 def _collect_uploaded_paths(uploaded_files: Iterable, workspace: Path) -> list[Path]:
     inputs_dir = workspace / "inputs"
     inputs_dir.mkdir(parents=True, exist_ok=True)
@@ -125,8 +136,13 @@ def _collect_uploaded_paths(uploaded_files: Iterable, workspace: Path) -> list[P
             with zipfile.ZipFile(zip_target, "r") as archive:
                 archive.extractall(extract_dir)
             for candidate in sorted(extract_dir.rglob("*")):
-                if candidate.is_file() and candidate.suffix.lower() in SUPPORTED_EXTENSIONS:
-                    collected.append(candidate)
+                if not candidate.is_file():
+                    continue
+                if candidate.suffix.lower() not in SUPPORTED_EXTENSIONS:
+                    continue
+                if _is_macos_metadata(candidate):
+                    continue
+                collected.append(candidate)
             continue
 
         if suffix in SUPPORTED_EXTENSIONS:
