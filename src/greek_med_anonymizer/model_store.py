@@ -15,7 +15,8 @@ import zipfile
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 MODELS_ROOT = PROJECT_ROOT / "models"
 
-# name -> Google Drive share link of a .zip with the model folder inside.
+# name -> Google Drive share link ("Anyone with the link") of either the model
+# folder itself or a .zip with the model folder inside.
 MODELS: dict[str, str | None] = {
     # XLM-R, 25 original + 40 synthetic reports, gold v2 (the local hospital is
     # PHI), threshold and word snapping stored in final_config.json.
@@ -96,13 +97,21 @@ def ensure_model_dir(name: str | None = None, models_root: Path | None = None) -
     shutil.rmtree(extract_root, ignore_errors=True)
     extract_root.mkdir(parents=True)
 
-    gdown.download(gdrive_download_url(share_link), str(archive_path), quiet=False)
-    with zipfile.ZipFile(archive_path) as archive:
-        archive.extractall(extract_root)
+    if "/folders/" in share_link:
+        downloaded = gdown.download_folder(share_link, output=str(extract_root), quiet=False)
+        if not downloaded:
+            raise RuntimeError(
+                f"Could not download the model folder from {share_link}. Check that "
+                "it is shared as 'Anyone with the link'."
+            )
+    else:
+        gdown.download(gdrive_download_url(share_link), str(archive_path), quiet=False)
+        with zipfile.ZipFile(archive_path) as archive:
+            archive.extractall(extract_root)
 
     found = find_model_dir(extract_root)
     if found is None:
-        raise FileNotFoundError(f"No model folder was found inside {archive_path}.")
+        raise FileNotFoundError(f"No model folder was found in the download of {name}.")
 
     shutil.rmtree(target, ignore_errors=True)
     shutil.copytree(found, target)
