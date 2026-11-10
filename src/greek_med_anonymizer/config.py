@@ -12,6 +12,9 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 class RuleConfig:
     phones: bool = True
     patient_ids: bool = True
+    # Mask the local hospital (ΠΓΝΙ and its variants) with a rule. In gold v2 it
+    # is PHI. Set to False only to reproduce the behaviour of gold v1 models.
+    local_hospital: bool = True
 
 
 @dataclass(slots=True)
@@ -27,7 +30,16 @@ class ModelConfig:
     enabled: bool = False
     model_dir: str | None = None
     labels_to_mask: list[str] = field(default_factory=lambda: ["PHI", "PERSON_NAME", "HOSPITAL_NAME"])
+    # Kept for old config files; the detector no longer uses it.
     aggregation_strategy: str = "simple"
+    # Threshold on P(PHI) and word snapping. None means: take them from the
+    # model's final_config.json, or, for a model without one, use argmax and
+    # no word snapping (the behaviour the model was evaluated with).
+    threshold: float | None = None
+    word_snap: bool | None = None
+    # Sliding windows over long texts, as in training.
+    max_length: int = 512
+    stride: int = 128
 
 
 @dataclass(slots=True)

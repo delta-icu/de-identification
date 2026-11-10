@@ -24,7 +24,32 @@ PHONE_REGEX = re.compile(
 )
 
 PATIENT_ID_REGEX = re.compile(r"(?<!\d)\d{8}(?!\d)")
-_NOISE_EQ = {"ΜΕΘ", "ΤΕΠ", "ΠΓΝΙ"}
+
+# The local hospital (University Hospital of Ioannina) in the forms that appear
+# in the reports. In gold v2 it is PHI: a model trained on gold v2 learns to
+# mask it, and this rule catches it even when the model does not. A full stop
+# after a bare "ΠΓΝΙ" is sentence punctuation and stays outside the span.
+LOCAL_HOSPITAL_REGEX = re.compile(
+    r"""
+    (?<![^\W\d_])                       # not glued to a preceding letter
+    (?:
+        Π\.\s?Γ\.\s?Ν\.\s?Ι\.          # Π.Γ.Ν.Ι.
+        |
+        Π\.?\s?Γ\.?\s?Ν\.?\s+Ιωανν[ιί]νων  # ΠΓΝ Ιωαννίνων, Π.Γ.Ν. Ιωαννίνων
+        |
+        (?:ΠΓΝΙ|ΓΠΝΙ)(?:ωανν[ιί]νων)?      # ΠΓΝΙ, ΓΠΝΙ, and the typo ΓΠΝΙωαννίνων
+        |
+        Πανεπιστημιακ[οόώ]\w*\s+(?:Γενικ[οόώ]\w*\s+)?Νοσοκομε[ιί]\w*\s+Ιωανν[ιί]νων
+    )
+    (?![^\W\d_])                        # not glued to a following letter
+    """,
+    re.VERBOSE | re.IGNORECASE,
+)
+
+# Units and departments a model may flag that are never PHI.
+_NOISE_EQ = {"ΜΕΘ", "ΤΕΠ"}
+# Older models were trained with the local hospital left unmarked (gold v1).
+_LOCAL_HOSPITAL_NOISE = "ΠΓΝΙ"
 
 
 def detect_phone_entities(text: str) -> list[Entity]:
@@ -42,6 +67,15 @@ def detect_patient_id_entities(text: str) -> list[Entity]:
     return [
         Entity(match.start(), match.end(), "PATIENT_ID", match.group(0), "rule:free_text_patient_id")
         for match in PATIENT_ID_REGEX.finditer(text)
+    ]
+
+
+def detect_local_hospital_entities(text: str) -> list[Entity]:
+    if not text:
+        return []
+    return [
+        Entity(match.start(), match.end(), "HOSPITAL_NAME", match.group(0), "rule:local_hospital")
+        for match in LOCAL_HOSPITAL_REGEX.finditer(text)
     ]
 
 
@@ -65,13 +99,18 @@ def normalize_noise_token(value: str) -> str:
     return re.sub(r"[\s\.\-–—\(\)\[\]\{\}]+", "", normalized)
 
 
-def is_noise_entity_text(entity_text: str) -> bool:
+def is_noise_entity_text(entity_text: str, local_hospital_is_phi: bool = True) -> bool:
+    """True for model detections that should be dropped.
+
+    ``local_hospital_is_phi`` is True when the local hospital is masked. It is
+    then not noise, so a detection of it is kept.
+    """
     token = normalize_noise_token(entity_text)
     if not token:
         return True
     if token in _NOISE_EQ:
         return True
-    if token.startswith("ΠΓΝΙ"):
+    if not local_hospital_is_phi and token.startswith(_LOCAL_HOSPITAL_NOISE):
         return True
     return False
 

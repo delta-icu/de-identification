@@ -136,11 +136,27 @@ The downloaded `.zip` file contains:
 - one anonymized text file for each report
 - one `.json` metadata file for each report
 
+## Model
+
+The app uses an XLM-R model fine-tuned on Greek ICU reports. It is downloaded
+into `models/` the first time the app runs.
+
+- Default: `xlmr_k40_s0_gold2_r2`, trained on 25 original and 40 synthetic
+  reports. It masks the local hospital (ΠΓΝΙ) as well.
+- The threshold and the word-snapping setting are read from the model's
+  `final_config.json`, so they always match how the model was evaluated.
+- Long reports are processed in overlapping windows of 512 tokens, so the
+  whole report goes through the model.
+
+To use another model, put its folder in `models/` and set the environment
+variable `GREEK_ANON_MODEL` to the folder name before starting the app. The
+first-release model is still available as `xlmr_phi_final`.
+
 ## Notebook
 
 The notebook is available as an alternative option:
 
-[Open in Colab](https://colab.research.google.com/github/VanessaLislevand/greek-medical-anonymization/blob/main/Run_Anonymization_Colab.ipynb)
+[Open in Colab](https://colab.research.google.com/github/delta-icu/de-identification/blob/main/Run_Anonymization_Colab.ipynb)
 
 Inside Colab:
 
