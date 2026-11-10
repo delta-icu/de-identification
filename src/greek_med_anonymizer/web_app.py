@@ -3,95 +3,17 @@ from __future__ import annotations
 import io
 import json
 from pathlib import Path
-import shutil
 import sys
 import tempfile
 from typing import Iterable
-from urllib.parse import parse_qs, urlparse
 import zipfile
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_MODEL_DIR = PROJECT_ROOT / "models" / "xlmr_phi_final"
-MODEL_SHARE_LINK = "https://drive.google.com/file/d/1RIHFqp5Xke7t5JtMuXJBhoR_gqEVUoO_/view?usp=share_link"
 SUPPORTED_EXTENSIONS = {".docx", ".doc", ".txt"}
 
 
-def _build_gdrive_download_url(share_link: str) -> str:
-    parsed = urlparse(share_link)
-    parts = [part for part in parsed.path.split("/") if part]
-
-    if "file" in parts and "d" in parts:
-        try:
-            file_id = parts[parts.index("d") + 1]
-            return f"https://drive.google.com/uc?id={file_id}"
-        except IndexError as exc:
-            raise ValueError("Could not parse Google Drive file ID from share link.") from exc
-
-    query_id = parse_qs(parsed.query).get("id")
-    if query_id:
-        return f"https://drive.google.com/uc?id={query_id[0]}"
-
-    raise ValueError("Unsupported Google Drive share link format.")
-
-
-def _is_valid_model_dir(path: Path) -> bool:
-    required = {
-        "config.json",
-        "tokenizer.json",
-        "tokenizer_config.json",
-    }
-    names = {child.name for child in path.iterdir()} if path.exists() and path.is_dir() else set()
-    has_weights = "model.safetensors" in names or "pytorch_model.bin" in names
-    return required.issubset(names) and has_weights
-
-
-def _find_model_dir(root: Path) -> Path | None:
-    if _is_valid_model_dir(root):
-        return root
-
-    for candidate in root.rglob("*"):
-        if candidate.is_dir() and _is_valid_model_dir(candidate):
-            return candidate
-    return None
-
-
-def _ensure_model_dir() -> Path:
-    if _is_valid_model_dir(DEFAULT_MODEL_DIR):
-        return DEFAULT_MODEL_DIR
-
-    try:
-        import gdown
-    except ImportError as exc:
-        raise RuntimeError("Missing dependency: gdown. Install with `pip install -e \".[ml,ui]\"`.") from exc
-
-    download_root = PROJECT_ROOT / "models" / "_download_cache"
-    download_root.mkdir(parents=True, exist_ok=True)
-    archive_path = download_root / "xlmr_phi_final.zip"
-    extract_root = download_root / "extracted"
-
-    if extract_root.exists():
-        shutil.rmtree(extract_root)
-    extract_root.mkdir(parents=True, exist_ok=True)
-
-    download_url = _build_gdrive_download_url(MODEL_SHARE_LINK)
-    gdown.download(download_url, str(archive_path), quiet=False)
-
-    with zipfile.ZipFile(archive_path, "r") as archive:
-        archive.extractall(extract_root)
-
-    discovered = _find_model_dir(extract_root)
-    if discovered is None:
-        raise FileNotFoundError("The extracted model folder was not found.")
-
-    if DEFAULT_MODEL_DIR.exists():
-        shutil.rmtree(DEFAULT_MODEL_DIR)
-    DEFAULT_MODEL_DIR.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copytree(discovered, DEFAULT_MODEL_DIR)
-    return DEFAULT_MODEL_DIR
-
-
-def _build_pipeline(processing_mode: str, mask_token: str) -> AnonymizationPipeline:
+def _build_pipeline(processing_mode: str, mask_token: str):
     from greek_med_anonymizer.config import AppConfig, ModelConfig, RuleConfig
+    from greek_med_anonymizer.model_store import ensure_model_dir
     from greek_med_anonymizer.pipeline import AnonymizationPipeline
 
     config = AppConfig(
@@ -99,12 +21,11 @@ def _build_pipeline(processing_mode: str, mask_token: str) -> AnonymizationPipel
         output_suffix=".anon.txt",
         mask_token=mask_token,
         processing_mode=processing_mode,
-        rules=RuleConfig(phones=True, patient_ids=True),
+        rules=RuleConfig(phones=True, patient_ids=True, local_hospital=True),
         model=ModelConfig(
             enabled=True,
-            model_dir=str(_ensure_model_dir()),
+            model_dir=str(ensure_model_dir()),
             labels_to_mask=["PHI", "PERSON_NAME", "HOSPITAL_NAME"],
-            aggregation_strategy="simple",
         ),
     )
     return AnonymizationPipeline(config)
@@ -190,6 +111,10 @@ def render_app() -> None:
             ),
         )
         mask_token = st.text_input("Mask token", value="[REDACTED]")
+
+        from greek_med_anonymizer.model_store import selected_model_name
+
+        st.caption(f"Model: `{selected_model_name()}`")
 
     uploaded_files = st.file_uploader(
         "Upload `.docx`, `.doc`, `.txt`, or `.zip` files",

@@ -40,6 +40,9 @@ checkpoints/
 !models/xlmr_phi_final/
 models/xlmr_phi_final/*
 !models/xlmr_phi_final/.gitkeep
+# Any other downloaded model folder
+models/*/
+!models/xlmr_phi_final/
 
 # Data, reports, outputs
 data/
