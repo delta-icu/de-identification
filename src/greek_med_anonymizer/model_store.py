@@ -20,7 +20,7 @@ MODELS_ROOT = PROJECT_ROOT / "models"
 MODELS: dict[str, str | None] = {
     # XLM-R, 25 original + 40 synthetic reports, gold v2 (the local hospital is
     # PHI), threshold and word snapping stored in final_config.json.
-    "xlmr_k40_s0_gold2_r2": None,
+    "xlmr_k40_s0_gold2_r2": "https://drive.google.com/drive/folders/1Qr1MO_rqnl0qPBijQU-PRCenQ_xnoOvP?usp=sharing",
     # The model of the first release (gold v1, argmax, no word snapping).
     "xlmr_phi_final": "https://drive.google.com/file/d/1RIHFqp5Xke7t5JtMuXJBhoR_gqEVUoO_/view?usp=share_link",
 }
