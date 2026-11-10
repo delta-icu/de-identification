@@ -12,9 +12,11 @@ dependencies = []
 
 [project.optional-dependencies]
 ml = [
-  # transformers 5.x requires torch >= 2.5 and changes the tokenizer config
-  # format. Pinned below 5 to match the bundled model.
-  "transformers>=4.40.0,<5",
+  # The models were trained with transformers 5.x, which needs torch >= 2.5.
+  # 4.x still works (the detector handles the 5.x tokenizer config), so it
+  # stays allowed for machines where torch >= 2.5 cannot be installed, such as
+  # older Intel Macs.
+  "transformers>=4.40.0,<6",
   "torch>=2.2.0",
 ]
 ui = [

@@ -5,7 +5,8 @@
   "processing_mode": "auto",
   "rules": {
     "phones": true,
-    "patient_ids": true
+    "patient_ids": true,
+    "local_hospital": true
   },
   "template_sections": [
     {
@@ -28,6 +29,7 @@
       "PERSON_NAME",
       "HOSPITAL_NAME"
     ],
-    "aggregation_strategy": "simple"
+    "threshold": null,
+    "word_snap": null
   }
 }

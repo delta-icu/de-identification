@@ -5,12 +5,16 @@
   "processing_mode": "auto",
   "rules": {
     "phones": true,
-    "patient_ids": true
+    "patient_ids": true,
+    "local_hospital": true
   },
   "model": {
     "enabled": true,
-    "model_dir": "models/xlmr_phi_final",
-    "labels_to_mask": ["PHI"],
-    "aggregation_strategy": "simple"
+    "model_dir": "models/xlmr_k40_s0_gold2_r2",
+    "labels_to_mask": [
+      "PHI"
+    ],
+    "threshold": null,
+    "word_snap": null
   }
 }
