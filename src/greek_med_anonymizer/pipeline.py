@@ -53,6 +53,9 @@ class AnonymizationPipeline:
                     section_entities.extend(detect_phone_entities(section_text))
                 if self.config.rules.patient_ids:
                     section_entities.extend(detect_patient_id_entities(section_text))
+                # The hospital name is often in the letterhead or a field.
+                if self.config.rules.local_hospital:
+                    section_entities.extend(detect_local_hospital_entities(section_text))
 
             elif section.name == "free_text":
                 section_entities.extend(self._free_text_rule_entities(section_text))
