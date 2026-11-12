@@ -26,18 +26,18 @@ PHONE_REGEX = re.compile(
 PATIENT_ID_REGEX = re.compile(r"(?<!\d)\d{8}(?!\d)")
 
 # The local hospital (University Hospital of Ioannina) in the forms that appear
-# in the reports. In gold v2 it is PHI: a model trained on gold v2 learns to
+# in the reports, with and without "Γενικό" (ΠΓΝΙ / ΠΝΙ). In gold v2 it is PHI: a model trained on gold v2 learns to
 # mask it, and this rule catches it even when the model does not. A full stop
 # after a bare "ΠΓΝΙ" is sentence punctuation and stays outside the span.
 LOCAL_HOSPITAL_REGEX = re.compile(
     r"""
     (?<![^\W\d_])                       # not glued to a preceding letter
     (?:
-        Π\.\s?Γ\.\s?Ν\.\s?Ι\.          # Π.Γ.Ν.Ι.
+        Π\.\s?(?:Γ\.\s?)?Ν\.\s?Ι\.      # Π.Γ.Ν.Ι., Π.Ν.Ι.
         |
-        Π\.?\s?Γ\.?\s?Ν\.?\s+Ιωανν[ιί]νων  # ΠΓΝ Ιωαννίνων, Π.Γ.Ν. Ιωαννίνων
+        Π\.?\s?(?:Γ\.?\s?)?Ν\.?\s+Ιωανν[ιί]νων  # ΠΓΝ / ΠΝ Ιωαννίνων, Π.Γ.Ν. / Π.Ν. Ιωαννίνων
         |
-        (?:ΠΓΝΙ|ΓΠΝΙ)(?:ωανν[ιί]νων)?      # ΠΓΝΙ, ΓΠΝΙ, and the typo ΓΠΝΙωαννίνων
+        (?:ΠΓΝΙ|ΓΠΝΙ|ΠΝΙ)(?:ωανν[ιί]νων)?  # ΠΓΝΙ, ΠΝΙ, ΓΠΝΙ, and the typo ΓΠΝΙωαννίνων
         |
         Πανεπιστημιακ[οόώ]\w*\s+(?:Γενικ[οόώ]\w*\s+)?Νοσοκομε[ιί]\w*\s+Ιωανν[ιί]νων
     )
@@ -49,7 +49,7 @@ LOCAL_HOSPITAL_REGEX = re.compile(
 # Units and departments a model may flag that are never PHI.
 _NOISE_EQ = {"ΜΕΘ", "ΤΕΠ"}
 # Older models were trained with the local hospital left unmarked (gold v1).
-_LOCAL_HOSPITAL_NOISE = "ΠΓΝΙ"
+_LOCAL_HOSPITAL_NOISE = ("ΠΓΝΙ", "ΠΝΙ")
 
 
 def detect_phone_entities(text: str) -> list[Entity]:
