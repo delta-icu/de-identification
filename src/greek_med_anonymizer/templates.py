@@ -8,10 +8,22 @@ START_PAT = re.compile(
     r"ΑΙΤΙΑ\s+ΕΙΣΟΔΟΥ\s*[-–—]\s*ΙΣΤΟΡΙΚΟ",
     re.IGNORECASE,
 )
+# Some reports write the heading differently ("ΙΣΤΟΡΙΚΟ - ΑΙΤΙΑ ΕΙΣΟΔΟΥ – ΠΑΡΟΥΣΑ ΝΟΣΟΣ",
+# "ΑΙΤΙΑ ΕΙΣΟΔΟΥ-ΑΤΟΜΙΚΟ ΑΝΑΜΝΗΣΤΙΚΟ-ΠΟΡΕΙΑ ΝΟΣΟΥ"). When the usual heading is missing,
+# the free text starts at the line that contains "ΑΙΤΙΑ ΕΙΣΟΔΟΥ".
+ALT_START_PAT = re.compile(
+    r"^[^\n]*ΑΙΤΙΑ\s+ΕΙΣΟΔΟΥ[^\n]*$",
+    re.IGNORECASE | re.MULTILINE,
+)
 END_PAT = re.compile(
     r"\bΟ\s+Διευθυντής\b",
     re.IGNORECASE,
 )
+
+
+def find_free_text_start(text: str) -> re.Match[str] | None:
+    """The free-text heading: the usual one, or else a line with "ΑΙΤΙΑ ΕΙΣΟΔΟΥ"."""
+    return START_PAT.search(text) or ALT_START_PAT.search(text)
 
 
 @dataclass(slots=True)
@@ -25,7 +37,7 @@ class TextSection:
 def split_template_free(text: str | None) -> tuple[str, str]:
     text = "" if text is None else str(text)
 
-    start_match = START_PAT.search(text)
+    start_match = find_free_text_start(text)
     if not start_match:
         return text, ""
 
@@ -44,7 +56,7 @@ def split_template_free(text: str | None) -> tuple[str, str]:
 def split_template_sections(text: str, sections: list | None = None) -> list[TextSection]:
     text = "" if text is None else str(text)
     resolved_sections: list[TextSection] = []
-    start_match = START_PAT.search(text)
+    start_match = find_free_text_start(text)
 
     if not start_match:
         return [TextSection(name="full_text", start=0, end=len(text), text=text)]
