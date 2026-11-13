@@ -46,6 +46,15 @@ LOCAL_HOSPITAL_REGEX = re.compile(
     re.VERBOSE | re.IGNORECASE,
 )
 
+# The hospital line of the letterhead, e.g. "ΠΑΝΕΠΙΣΤΗΜΙΑΚΟ ΓΕΝΙΚΟ ΝΟΣΟΚΟΜΕΙΟ ΙΩΑΝΝΙΝΩΝ" or
+# "ΝΟΣΟΚΟΜΕΙΟ ΙΩΑΝΝΙΝΩΝ" on its own line. The name after "ΝΟΣΟΚΟΜΕΙΟ" is masked,
+# whatever the hospital, so the rule works without knowing where the reports come
+# from. Only used on the template part, where such a line is the letterhead.
+LETTERHEAD_HOSPITAL_REGEX = re.compile(
+    r"^[ \t]*(?:ΠΑΝΕΠΙΣΤΗΜΙΑΚΟ[ \t]+)?(?:ΓΕΝΙΚΟ[ \t]+)?ΝΟΣΟΚΟΜΕΙΟ[ \t]+(\S[^\n]{0,60}?)[ \t]*$",
+    re.MULTILINE | re.IGNORECASE,
+)
+
 # Units and departments a model may flag that are never PHI.
 _NOISE_EQ = {"ΜΕΘ", "ΤΕΠ"}
 # Older models were trained with the local hospital left unmarked (gold v1).
@@ -76,6 +85,15 @@ def detect_local_hospital_entities(text: str) -> list[Entity]:
     return [
         Entity(match.start(), match.end(), "HOSPITAL_NAME", match.group(0), "rule:local_hospital")
         for match in LOCAL_HOSPITAL_REGEX.finditer(text)
+    ]
+
+
+def detect_letterhead_hospital_entities(text: str) -> list[Entity]:
+    if not text:
+        return []
+    return [
+        Entity(match.start(1), match.end(1), "HOSPITAL_NAME", match.group(1), "rule:letterhead_hospital")
+        for match in LETTERHEAD_HOSPITAL_REGEX.finditer(text)
     ]
 
 

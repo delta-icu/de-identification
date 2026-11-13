@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from greek_med_anonymizer.config import AppConfig, resolve_model_dir
 from greek_med_anonymizer.free_text_rules import (
+    detect_letterhead_hospital_entities,
     detect_local_hospital_entities,
     detect_patient_id_entities as detect_free_text_patient_id_entities,
     detect_phone_entities as detect_free_text_phone_entities,
@@ -56,6 +57,8 @@ class AnonymizationPipeline:
                 # The hospital name is often in the letterhead or a field.
                 if self.config.rules.local_hospital:
                     section_entities.extend(detect_local_hospital_entities(section_text))
+                if self.config.rules.letterhead_hospital:
+                    section_entities.extend(detect_letterhead_hospital_entities(section_text))
 
             elif section.name == "free_text":
                 section_entities.extend(self._free_text_rule_entities(section_text))
@@ -68,6 +71,8 @@ class AnonymizationPipeline:
                 # they are safe to run on the whole text, and the model output
                 # gets the same filtering as in free text.
                 section_entities.extend(detect_template_entities(section_text))
+                if self.config.rules.letterhead_hospital:
+                    section_entities.extend(detect_letterhead_hospital_entities(section_text))
                 section_entities.extend(self._free_text_rule_entities(section_text))
                 section_entities.extend(self._model_entities(section_text, section_entities))
 

@@ -15,6 +15,9 @@ class RuleConfig:
     # Mask the local hospital (ΠΓΝΙ and its variants) with a rule. In gold v2 it
     # is PHI. Set to False only to reproduce the behaviour of gold v1 models.
     local_hospital: bool = True
+    # Mask the hospital name in the letterhead ("ΠΑΝΕΠΙΣΤΗΜΙΑΚΟ ΓΕΝΙΚΟ ΝΟΣΟΚΟΜΕΙΟ <name>"),
+    # whatever the hospital. Template part only.
+    letterhead_hospital: bool = True
 
 
 @dataclass(slots=True)
