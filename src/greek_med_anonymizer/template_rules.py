@@ -6,7 +6,8 @@ import string
 from greek_med_anonymizer.models import Entity
 
 
-PATIENT_ID_LABEL = r"Αρ\.\s*Μητρ\.\s*Ασθ(?:\.|(?:ενούς))?"
+# "Αρ. Μητρ. Ασθ." or "ΝΠΣ" (the hospital's patient number), as the field label
+PATIENT_ID_LABEL = r"(?:Αρ\.\s*Μητρ\.\s*Ασθ(?:\.|(?:ενούς))?|ΝΠΣ)"
 POSTAL_CITY_LABEL = r"(?:Τ\.\s*Κ\.?\s*[–—-]?\s*Πόλη|Τ\.\s*Κ\.?|Πόλη)"
 
 
@@ -30,16 +31,46 @@ FIELD_NEXT_LINE = [
     ("phone", re.compile(r"(Τηλέφωνο\s*:\s*\n)([^\n\r]+)", re.IGNORECASE)),
 ]
 
+# Signature titles, masculine and feminine ("Ο Επιμελητής", "Η Επιμελήτρια").
+SIGNATURE_TITLES = (
+    r"Διευθυντής|Διευθύντρια|Επιμελητής|Επιμελήτρια|Ιατρός(?:\s+ΜΕΘ)?|"
+    r"Εξειδικευόμεν(?:η|ος)|Καθηγητής|Καθηγήτρια"
+)
+
+# A role line under a signature ("Δ/ΝΤΗΣ ΜΕΘ", "ΕΠΙΜ. Β’ ΜΕΘ", "Επιμελήτρια Β ΜΕΘ",
+# "ΚΑΘΗΓΗΤΗΣ ΕΝΤ. ΘΕΡΑΠΕΙΑΣ", "Δ/τρια ΕΣΥ", "ΜΕΘ"): a title without a name, so it is not masked.
+# A hospital inside it (e.g. the local hospital) is still masked by the hospital rules.
+ROLE_LINE_START = re.compile(r"^(?:Δ/ΝΤ|Δ/ντ|Δ/τρ|Δ/ΤΡ|ΕΠΙΜ|Επιμελ|ΚΑΘΗΓ|Καθηγ|Διευθ|ΔΙΕΥΘ|ΜΕΘ\b|Μ\.Ε\.Θ)")
+ROLE_WORDS = {
+    "ΜΕΘ", "ΕΣΥ", "ΕΝΤ", "ΕΝΤΑΤΙΚΗΣ", "ΘΕΡΑΠΕΙΑΣ", "ΜΟΝΑΔΑΣ", "ΚΛΙΝΙΚΗΣ", "ΤΜΗΜΑΤΟΣ",
+    "ΔΙΕΥΘΥΝΤΗΣ", "ΔΙΕΥΘΥΝΤΡΙΑ", "ΕΠΙΜΕΛΗΤΗΣ", "ΕΠΙΜΕΛΗΤΡΙΑ", "ΚΑΘΗΓΗΤΗΣ", "ΚΑΘΗΓΗΤΡΙΑ",
+}
+_ACCENTS = str.maketrans("ΆΈΉΊΌΎΏΪΫ", "ΑΕΗΙΟΥΩΙΥ")
+
+
+def is_role_line(value: str) -> bool:
+    value = (value or "").strip()
+    if not ROLE_LINE_START.match(value):
+        return False
+    rest = re.sub(r"^\S*", "", value)  # the words after the title itself
+    for word in re.findall(r"[^\W\d_]{4,}", rest):
+        upper = word.upper().translate(_ACCENTS)
+        if upper in ROLE_WORDS or re.fullmatch(r"[ΠΓ]{1,2}Ν[Α-Ω]*", upper):
+            continue
+        return False
+    return True
+
+
 SIGNATURE_TITLE_LINE = re.compile(
     r"^\s*(?:Ο|Η)\s+"
-    r"(?:Διευθυντής|Επιμελητής|Ιατρός(?:\s+ΜΕΘ)?|Εξειδικευόμεν(?:η|ος)|Καθηγητής)"
+    rf"(?:{SIGNATURE_TITLES})"
     r"\s*$",
     re.IGNORECASE,
 )
 
 SIGNATURE_TITLES_BLOCK = re.compile(
     r"((?:^\s*(?:Ο|Η)\s+"
-    r"(?:Διευθυντής|Επιμελητής|Ιατρός(?:\s+ΜΕΘ)?|Εξειδικευόμεν(?:η|ος)|Καθηγητής)"
+    rf"(?:{SIGNATURE_TITLES})"
     r"\s*$\n?)+)",
     re.IGNORECASE | re.MULTILINE,
 )
@@ -64,6 +95,8 @@ LABEL_HINTS = [
     "Η Εξειδικευόμενη",
     "Ο Εξειδικευόμενος",
     "Ο Ιατρός ΜΕΘ",
+    "Η Επιμελήτρια",
+    "Η Διευθύντρια",
     "Η Ιατρός ΜΕΘ",
     "Ο Ιατρός",
     "Η Ιατρός",
@@ -212,7 +245,7 @@ def detect_template_entities(template_text: str) -> list[Entity]:
                 offset += len(line)
                 continue
             cleaned = _strip_edge_punct(raw)
-            if not cleaned or looks_like_label(cleaned):
+            if not cleaned or looks_like_label(cleaned) or is_role_line(cleaned):
                 offset += len(line)
                 continue
             local_idx = raw.find(cleaned)
